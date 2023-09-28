@@ -15,11 +15,13 @@
 ################################################# Precept 3: Processing Text in R
 
 ## working directory
-setwd("/Users/christianbaehr/Documents/GitHub/POL504_precept_2023/")
+setwd("/Users/fiona/OneDrive/Documents/GitHub/POL504_precept_2023/")
 
 ## load packages
 pacman::p_load(dplyr, ggplot2, gutenbergr, preText, quanteda, quanteda.corpora, 
                quanteda.textplots, quanteda.textstats, readtext)
+
+devtools::install_github("quanteda/quanteda.corpora")
 
 ## load movie reviews
 reviews <- readtext("data/reviews.csv", text_field = "review") |>
@@ -109,6 +111,7 @@ abline(a = reg.nostop$coefficients[1], b = -1, col = "black")
 
 ## very different!!!
 
+##note, Zipfs seems to maybe hold better when we are not processing our data so much (as compared to Heap's)
 
 ## 2.1) Calculating distance
 
@@ -135,6 +138,8 @@ reviews.3 <- dfm_subset(reviews.dfm, subset = 1:nrow(reviews.dfm) %in% indices)
 textstat_simil(reviews.3, method = c("cosine")) # what do higher values mean?
 
 
+#higher values mean reviews are more similar 
+
 #######################################
 
 
@@ -146,6 +151,20 @@ textstat_simil(reviews.3, method = c("cosine")) # what do higher values mean?
 
 ## Hint: can retrieve the entire row for the 24th document in the matrix
 as.matrix(reviews.dfm)[24,]
+
+euc_dist <- function(x, y) {
+  vec1 <- as.numeric(as.matrix(x))
+  vec2 <- as.numeric (as.matrix(y))
+  
+  distance <- sqrt(sum((vec1 - vec2)^2))
+  return(distance)
+}
+
+euc_dist(reviews.3[1,], reviews.3[2,])
+
+euc_dist(reviews.3[1,], reviews.3[3,])
+
+euc_dist(reviews.3[3,], reviews.3[2,])
 
 
 #######################################
@@ -212,8 +231,8 @@ budget.lp.df.SPLIT <- split(budget.lp.df, f=as.factor(budget.lp.df$party))
 boot.fre <- function(party) { # accepts df of texts (party-specific)
   n <- nrow(party) # number of texts
   docnums <- sample(1:n, size=n, replace=T) # sample texts WITH replacement
-  docs.boot <- party[docnums, "text"]
-  docnames(docs.boot) <- 1:length(docs.boot) 
+  docs.boot <- party[docnums, "text"] #something cutesy??? 
+  docnames(docs.boot) <- 1:length(docs.boot) #something you have to do 
   fre <- textstat_readability(docs.boot, measure = "Flesch") # compute FRE for each
   return(mean(fre[,"Flesch"])) # return flesch scores only
 }
