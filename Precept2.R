@@ -17,7 +17,6 @@
 ## 1.1) working directory
 
 ## point this to directory containing precept files
-setwd("/Users/christianbaehr/Documents/GitHub/POL504_precept_2023/")
 
 
 ## 1.2) package management
@@ -85,8 +84,8 @@ reviews.dfm_prop <- dfm_tfidf(reviews.dfm,
                               scheme_tf = "prop",
                               base = exp(1)) # relative frequency
 
-topfeatures(reviews.dfm_prop)
-topfeatures(reviews.dfm_prop[nrow(reviews.dfm_prop),])
+topfeatures(reviews.dfm_prop) #give me top features across entire dataset
+topfeatures(reviews.dfm_prop[nrow(reviews.dfm_prop),]) #want to subset dfm to only the last document
 
 topfeatures(reviews.dfm_weighted)
 topfeatures(reviews.dfm_weighted[nrow(reviews.dfm_weighted),]) # why is ordering identical as frequency weighting?
@@ -97,13 +96,29 @@ topfeatures(reviews.dfm_weighted[nrow(reviews.dfm_weighted),]) # why is ordering
 
 ## 1.4) IN CLASS ACTIVITY
 
-## Working in pairs, compute the difference-in-means for the NUMBER OF TIMES
+## Working in pairs, compute the difference-in-means for the RATE OF WHICH
 ## the term "bad" occurs in positive reviews versus negative reviews
 
-## Hint: retrieve non-zero entries for a single dfm feature column
-feature <- dfm_select(reviews.dfm, pattern = "love") # subset dfm to single feature
-occurrences <- feature@x # extract the non-zero rows for "love"
+#subset by sentiment
+pos <- dfm_subset(reviews.dfm, subset = sentiment ==1)
+neg <- dfm_subset(reviews.dfm, subset = sentiment ==0)
 
+#select for bad 
+pos.col <- dfm_select(pos, pattern = "bad")
+
+neg.col <- dfm_select(neg, pattern = "bad")
+
+#take average
+avg.pos <- sum(pos.col@x) / dim(pos.col)[1]
+
+avg.neg <- sum(neg.col@x) / dim(neg.col)[1]
+
+#difference in means
+dif.means <- avg.pos - avg.neg
+
+## Hint: retrieve non-zero entries for a single dfm feature column
+feature_love <- dfm_select(reviews.dfm, pattern = "love") # subset dfm to single feature
+occurrences <- feature@x # extract the non-zero rows for "love"
 
 #######################################
 
